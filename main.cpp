@@ -8,16 +8,21 @@
 
 #include <cmath>
 #include <iostream>
+#include <chrono>
 using namespace std;
 
 float windowX = 640.0f;
 float windowY = 480.0f;
 float circleX = 0;
 float circleY = 0;
-float vx = 100;
-float vy = 0;
+float vx = 2;
+float vy = 3;
 float fps = 60.0f;
 int callbackPing = int(1000.0f/fps);
+float deltaTime = float(callbackPing)/1000.0f;
+chrono::steady_clock::time_point initial = chrono::steady_clock::now();
+chrono::steady_clock::time_point lastTime = initial;
+float timeElapsed = 0;
 
 void init(){
     glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -51,8 +56,11 @@ void display() {
 }
 
 void update(int value){
-    float deltaTime = float(callbackPing)/1000.0f;
-//    cout << deltaTime << endl;
+    chrono::steady_clock::time_point curr = chrono::steady_clock::now();
+    timeElapsed = float(chrono::duration_cast<chrono::microseconds>(curr-initial).count())/1000000.0f;
+    deltaTime = float(chrono::duration_cast<chrono::microseconds>(curr - lastTime).count())/1000000.0f;
+    cout<<deltaTime<<endl;
+    lastTime = curr;
     circleX += vx*deltaTime;
     circleY += vy*deltaTime;
     glutPostRedisplay();
