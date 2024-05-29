@@ -9,6 +9,9 @@
 #include <cmath>
 #include <iostream>
 #include <chrono>
+#include "Particle.h"
+#include <vector>
+#include <random>
 using namespace std;
 
 float windowX = 640.0f;
@@ -23,6 +26,7 @@ float deltaTime = float(callbackPing)/1000.0f;
 chrono::steady_clock::time_point initial = chrono::steady_clock::now();
 chrono::steady_clock::time_point lastTime = initial;
 float timeElapsed = 0;
+vector<Particle> particles;
 
 void init(){
     glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -41,13 +45,17 @@ void display() {
 
     glColor3f(1.0, 1.0, 1.0);
     glBegin(GL_POLYGON);
-    float radius = 20.0f;
-    int segments=int(radius*2*M_PI);
-    for(int i = 0; i < segments; i++){
-        float theta = 2.0*M_PI*float(i)/float(segments);
-        float x = circleX + radius*cos(theta);
-        float y = circleY + radius*sin(theta);
-        glVertex2f(x,y);
+    for(int i = 0; i < particles.size(); i++){
+        Particle p = particles.at(i);
+        float radius = p.radius;
+        cout << p.pos.x << endl;
+        int segments = int(radius*2*M_PI);
+        for(int j = 0; j < segments; j++){
+            float theta = 2.0f * M_PI * float(i)/float(segments);
+            float x = p.pos.x + radius * cos(theta);
+            float y = p.pos.y + radius * sin(theta);
+            glVertex2f(x,y);
+        }
     }
 
     glEnd();
@@ -59,12 +67,14 @@ void update(int value){
     chrono::steady_clock::time_point curr = chrono::steady_clock::now();
     timeElapsed = float(chrono::duration_cast<chrono::microseconds>(curr-initial).count())/1000000.0f;
     deltaTime = float(chrono::duration_cast<chrono::microseconds>(curr - lastTime).count())/1000000.0f;
-    cout<<deltaTime<<endl;
     lastTime = curr;
-    circleX += vx*deltaTime;
-    circleY += vy*deltaTime;
+    for(int i = 0; i < particles.size(); i++){
+        Particle p = particles.at(i);
+        p.updateAcceleration(particles);
+        p.vel = Vector2(p.vel.x+p.acc.x*deltaTime,p.vel.y+p.acc.y*deltaTime);
+        p.pos = Vector2(p.vel.x*deltaTime, p.vel.y*deltaTime);
+    }
     glutPostRedisplay();
-
     glutTimerFunc(callbackPing,update,0);
 
 }
@@ -74,6 +84,14 @@ void update(int value){
 int main(int argc, char** argv) {
     // Use a single buffered window in RGB mode (as opposed to a double-buffered
     // window or color-index mode).
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_real_distribution<float> dis(0.0f, 1.0f);
+
+    for(int i = 0; i <1; i++){
+        particles.push_back(Particle((dis(gen)-0.5f)*30,(dis(gen)-0.5f)*30,20,1));
+    }
+
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 
@@ -87,7 +105,7 @@ int main(int argc, char** argv) {
     init();
     glutDisplayFunc(display);
 
-    glutTimerFunc(callbackPing,update,0);
+//    glutTimerFunc(callbackPing,update,0);
 
     // Tell GLUT to start reading and processing events.  This function
     // never returns; the program only exits when the user closes the main

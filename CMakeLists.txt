@@ -13,7 +13,9 @@ find_package(GLUT REQUIRED)
 include_directories(${GLFW_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS})
 
 # Add your source files
-add_executable(ParticleProject main.cpp)
+add_executable(ParticleProject main.cpp
+        Particle.cpp
+        Particle.h)
 
 find_package(glm CONFIG REQUIRED)
 target_link_libraries(ParticleProject PRIVATE ${OPENGL_LIBRARIES} glfw ${GLUT_LIBRARIES} glm::glm)
