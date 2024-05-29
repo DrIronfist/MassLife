@@ -1,46 +1,70 @@
 
-#include <GLFW/glfw3.h>
-
-#include <iostream>
+#define GL_SILENCE_DEPRECATION
+#ifdef __APPLE_CC__
 #include <GLUT/glut.h>
-const int windowWidth = 800;
-const int windowHeight = 600;
-const float radius = 100.0f;
-const float centerX = windowWidth/2;
-const float centerY = windowHeight/2;
+#else
+#include <GL/glut.h>
+#endif
 
-void display() {
-    glClear(GL_COLOR_BUFFER_BIT);
-    glLoadIdentity();
-    glBegin(GL_POINTS);
-    for(float angle = 0; angle < 2* M_PI; angle += 0.001){
-        float x = centerX + radius * cos(angle);
-        float y = centerY + radius * sin(angle);
-        glVertex2f(x,y);
-    }
-    glEnd();
-    glFlush();
-}
+#include <cmath>
 
-void init() {
-    glClearColor(0, 0, 0, 0);
-    glColor3f(1, 1, 1);
-    glPointSize(1);
+float windowX = 640.0f;
+float windowY = 480.0f;
+
+
+void init(){
+    glClearColor(0.0, 0.0, 0.0, 1.0);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluOrtho2D(0.0, windowWidth, 0, windowHeight);
-
+    glOrtho(-10.0, 10.0, -10.0, 10.0, -1.0, 1.0);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 }
 
+// Clears the current window and draws a triangle.
+void display() {
 
+    // Set every pixel in the frame buffer to the current clear color.
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glColor3f(1.0, 1.0, 1.0);
+    glBegin(GL_POINTS);
+    float radius = 5.0f;
+    int segments=100;
+    for(int i = 0; i < segments; i++){
+        float theta = 2.0*M_PI*float(i)/float(segments);
+        float x = radius*cos(theta);
+        float y = radius*sin(theta);
+        glVertex2f(x,y);
+    }
+
+    glEnd();
+
+    glutSwapBuffers();
+}
+
+// Initializes GLUT, the display mode, and main window; registers callbacks;
+// enters the main event loop.
 int main(int argc, char** argv) {
+
+    // Use a single buffered window in RGB mode (as opposed to a double-buffered
+    // window or color-index mode).
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_SINGLE| GLUT_RGB);
-    glutInitWindowSize(windowWidth, windowHeight);
-    glutInitWindowPosition(100,100);
-    glutCreateWindow("Pixel Time");
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+
+    // Position window at (80,80)-(480,380) and give it a title.
+    glutInitWindowPosition(80, 80);
+    glutInitWindowSize(windowX, windowY);
+    glutCreateWindow("Cirle Test");
+
+    // Tell GLUT that whenever the main window needs to be repainted that it
+    // should call the function display().
     init();
     glutDisplayFunc(display);
+
+    // Tell GLUT to start reading and processing events.  This function
+    // never returns; the program only exits when the user closes the main
+    // window or kills the process.
     glutMainLoop();
     return 0;
 }
