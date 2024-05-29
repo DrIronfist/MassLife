@@ -16,7 +16,7 @@ void init(){
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(-10.0, 10.0, -10.0, 10.0, -1.0, 1.0);
+    glOrtho(0, windowX, 0, windowY, -1.0, 1.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
@@ -29,12 +29,14 @@ void display() {
 
     glColor3f(1.0, 1.0, 1.0);
     glBegin(GL_POINTS);
-    float radius = 5.0f;
+    float startX = windowX/2.0f+100;
+    float startY = windowY/2.0f+100;
+    float radius = 20.0f;
     int segments=100;
     for(int i = 0; i < segments; i++){
         float theta = 2.0*M_PI*float(i)/float(segments);
-        float x = radius*cos(theta);
-        float y = radius*sin(theta);
+        float x = startX + radius*cos(theta);
+        float y = startY + radius*sin(theta);
         glVertex2f(x,y);
     }
 
