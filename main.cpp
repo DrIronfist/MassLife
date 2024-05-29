@@ -28,11 +28,11 @@ void display() {
     glClear(GL_COLOR_BUFFER_BIT);
 
     glColor3f(1.0, 1.0, 1.0);
-    glBegin(GL_POINTS);
+    glBegin(GL_POLYGON);
     float startX = windowX/2.0f+100;
     float startY = windowY/2.0f+100;
     float radius = 20.0f;
-    int segments=100;
+    int segments=int(radius*2*M_PI);
     for(int i = 0; i < segments; i++){
         float theta = 2.0*M_PI*float(i)/float(segments);
         float x = startX + radius*cos(theta);
@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
     // Position window at (80,80)-(480,380) and give it a title.
     glutInitWindowPosition(80, 80);
     glutInitWindowSize(windowX, windowY);
-    glutCreateWindow("Cirle Test");
+    glutCreateWindow("Circle Test");
 
     // Tell GLUT that whenever the main window needs to be repainted that it
     // should call the function display().
