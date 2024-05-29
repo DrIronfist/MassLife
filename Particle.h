@@ -14,7 +14,24 @@ struct Vector2 {
     Vector2(float d, float d0) : x(d), y(d0) {}
 };
 
-const float k = 30.0f;
+float magnitude(const Vector2& v) {
+    return std::sqrt(v.x * v.x + v.y * v.y);
+}
+
+Vector2 subtractMagnitude(const Vector2& v, float amount) {
+    float mag = magnitude(v);
+
+    // Calculate the new magnitude after subtracting the amount
+    float newMag = mag - amount;
+    // Normalize the vector to get its direction and multiply by the new magnitude
+    return Vector2(v.x * (newMag / mag), v.y * (newMag / mag));
+
+}
+
+
+
+const float k = 90000.0f;
+const float kFriction = 3;
 
 class Particle {
 public:
@@ -26,12 +43,19 @@ public:
 
     // Constructor
     Particle(float x, float y, float radius_val, float charge_val)
-            : pos(x, y), vel(0, 0), acc(0, 0), radius(radius_val), charge(charge_val) {}
+            : pos(x, y), vel(20, 0), acc(0, 0), radius(radius_val), charge(charge_val){}
 
     // Function to update acceleration
     Vector2 updateAcceleration(const std::vector<Particle>& particles) {
         float accX = 0.0f;
         float accY = 0.0f;
+        float velMag = sqrt(vel.x*vel.x+vel.y*vel.y);
+        cout << velMag << endl;
+        if(velMag > 0 ){
+            float theta = atan(vel.y/vel.x);
+            accX -= vel.x/velMag * kFriction;
+            accY -= vel.y/velMag* kFriction;
+        }
         const float epsilon = 1e-5f; // Small value to avoid division by zero
 
         for (int i = 0; i < particles.size(); i++) {
@@ -50,8 +74,8 @@ public:
             accX += force * deltaX;
             accY += force * deltaY;
         }
-//        cout << accX << endl;
-//        cout << accY << endl;
+
+
         Vector2 acceleration(accX, accY);
         acc = acceleration;
         return acceleration;

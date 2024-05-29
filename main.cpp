@@ -23,15 +23,16 @@ float vy = 3;
 float fps = 60.0f;
 int callbackPing = int(1000.0f/fps);
 float deltaTime = float(callbackPing)/1000.0f;
-chrono::steady_clock::time_point initial = chrono::steady_clock::now();
-chrono::steady_clock::time_point lastTime = initial;
 float timeElapsed = 0;
 vector<Particle> particles;
 
 void init(){
-    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glClearColor(32.0f/255.0f, 36.0f/255.0f, 47.0f/255.0f, 1.0);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
+    glEnable(GL_MULTISAMPLE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glOrtho(-windowX/2.0f, windowX/2.0f, -windowY/2.0f, windowY/2.0f, -1.0, 1.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -65,16 +66,24 @@ void display() {
 }
 
 void update(int value){
-    chrono::steady_clock::time_point curr = chrono::steady_clock::now();
-    timeElapsed = float(chrono::duration_cast<chrono::microseconds>(curr-initial).count())/1000000.0f;
-    deltaTime = float(chrono::duration_cast<chrono::microseconds>(curr - lastTime).count())/1000000.0f;
-    lastTime = curr;
+    timeElapsed += deltaTime;
     for(int i = 0; i < particles.size(); i++){
+        Particle& p = particles[i];
         particles[i].updateAcceleration(particles);
         particles[i].vel.x += particles[i].acc.x * deltaTime;
         particles[i].vel.y += particles[i].acc.y * deltaTime;
         particles[i].pos.x += particles[i].vel.x * deltaTime;
         particles[i].pos.y += particles[i].vel.y * deltaTime;
+        if (p.pos.x + p.radius > windowX / 2.0f || p.pos.x - p.radius < -windowX / 2.0f){
+            // Check for collision with window borders and reverse velocity if necessary
+            if (p.pos.x + p.radius > windowX / 2.0f || p.pos.x - p.radius < -windowX / 2.0f) {
+                p.vel.x *= -1;
+            }
+            if (p.pos.y + p.radius > windowY / 2.0f || p.pos.y - p.radius < -windowY / 2.0f) {
+                p.vel.y *= -1;
+            }
+        }
+
     }
     glutPostRedisplay();
     glutTimerFunc(callbackPing,update,0);
@@ -90,13 +99,12 @@ int main(int argc, char** argv) {
     mt19937 gen(rd());
     uniform_real_distribution<float> dis(0.0f, 1.0f);
 
-    for(int i = 0; i <2; i++){
-        particles.push_back(Particle((dis(gen)-0.5f)*100,(dis(gen)-0.5f)*100,5,(dis(gen)-0.5f)*10));
-        cout << particles[i].charge << endl;
+    for(int i = 0; i <1; i++){
+        particles.push_back(Particle((dis(gen)-0.5f)*windowX/2.0f,(dis(gen)-0.5f)*windowY/2.0f,5,(dis(gen)-0.5f)*10));
     }
 
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_MULTISAMPLE);
 
     // Position window at (80,80)-(480,380) and give it a title.
     glutInitWindowPosition(80, 80);
