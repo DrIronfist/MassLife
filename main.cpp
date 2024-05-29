@@ -1,65 +1,46 @@
+
 #include <GLFW/glfw3.h>
+
 #include <iostream>
+#include <GLUT/glut.h>
+const int windowWidth = 800;
+const int windowHeight = 600;
+const float radius = 100.0f;
+const float centerX = windowWidth/2;
+const float centerY = windowHeight/2;
 
-// Function to handle errors
-void error_callback(int error, const char* description) {
-    std::cerr << "Error: " << description << std::endl;
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT);
+    glLoadIdentity();
+    glBegin(GL_POINTS);
+    for(float angle = 0; angle < 2* M_PI; angle += 0.001){
+        float x = centerX + radius * cos(angle);
+        float y = centerY + radius * sin(angle);
+        glVertex2f(x,y);
+    }
+    glEnd();
+    glFlush();
 }
 
-// Function to handle keyboard input
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
+void init() {
+    glClearColor(0, 0, 0, 0);
+    glColor3f(1, 1, 1);
+    glPointSize(1);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0.0, windowWidth, 0, windowHeight);
+
 }
 
-int main() {
-    // Set the error callback function
-    glfwSetErrorCallback(error_callback);
 
-    // Initialize GLFW
-    if (!glfwInit()) {
-        std::cerr << "Failed to initialize GLFW" << std::endl;
-        return -1;
-    }
-
-    // Create a windowed mode window and its OpenGL context
-    GLFWwindow* window = glfwCreateWindow(800, 600, "I'M COMING FOR YOU ALLEN", NULL, NULL);
-    if (!window) {
-        std::cerr << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
-
-    // Make the window's context current
-    glfwMakeContextCurrent(window);
-
-    // Set the keyboard callback function
-    glfwSetKeyCallback(window, key_callback);
-
-    // Loop until the user closes the window
-    while (!glfwWindowShouldClose(window)) {
-        // Render here
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        // Draw a triangle
-        glBegin(GL_TRIANGLES);
-        glColor3f(1.0, 0.0, 0.0); // Red
-        glVertex2f(-0.5, -0.5);
-        glColor3f(0.0, 1.0, 0.0); // Green
-        glVertex2f(0.5, -0.5);
-        glColor3f(0.0, 0.0, 1.0); // Blue
-        glVertex2f(0.0, 0.5);
-        glEnd();
-
-        // Swap front and back buffers
-        glfwSwapBuffers(window);
-
-        // Poll for and process events
-        glfwPollEvents();
-    }
-
-    // Clean up
-    glfwDestroyWindow(window);
-    glfwTerminate();
+int main(int argc, char** argv) {
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_SINGLE| GLUT_RGB);
+    glutInitWindowSize(windowWidth, windowHeight);
+    glutInitWindowPosition(100,100);
+    glutCreateWindow("Pixel Time");
+    init();
+    glutDisplayFunc(display);
+    glutMainLoop();
     return 0;
 }

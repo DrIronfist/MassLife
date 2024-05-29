@@ -13,9 +13,14 @@ include_directories(${GLFW_INCLUDE_DIRS})
 # Add your source files
 add_executable(ParticleProject main.cpp)
 
-# Link GLFW and OpenGL libraries
-target_link_libraries(ParticleProject ${OPENGL_LIBRARIES} glfw)
+find_package(glm CONFIG REQUIRED)
+target_link_libraries(ParticleProject PRIVATE glm::glm)
 
-set(CMAKE_CXX_STANDARD 98)
+
+
+# Link GLFW and OpenGL libraries
+target_link_libraries(ParticleProject PRIVATE ${OPENGL_LIBRARIES} glfw)
+
+set(CMAKE_CXX_STANDARD 17)
 
 
