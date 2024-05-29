@@ -44,21 +44,22 @@ void display() {
     glClear(GL_COLOR_BUFFER_BIT);
 
     glColor3f(1.0, 1.0, 1.0);
-    glBegin(GL_POLYGON);
+
     for(int i = 0; i < particles.size(); i++){
+        glBegin(GL_POLYGON);
         Particle p = particles.at(i);
         float radius = p.radius;
-        cout << p.pos.x << endl;
         int segments = int(radius*2*M_PI);
         for(int j = 0; j < segments; j++){
-            float theta = 2.0f * M_PI * float(i)/float(segments);
+            float theta = 2.0f * M_PI * float(j)/float(segments);
             float x = p.pos.x + radius * cos(theta);
             float y = p.pos.y + radius * sin(theta);
             glVertex2f(x,y);
         }
+        glEnd();
     }
 
-    glEnd();
+
 
     glutSwapBuffers();
 }
@@ -69,10 +70,11 @@ void update(int value){
     deltaTime = float(chrono::duration_cast<chrono::microseconds>(curr - lastTime).count())/1000000.0f;
     lastTime = curr;
     for(int i = 0; i < particles.size(); i++){
-        Particle p = particles.at(i);
-        p.updateAcceleration(particles);
-        p.vel = Vector2(p.vel.x+p.acc.x*deltaTime,p.vel.y+p.acc.y*deltaTime);
-        p.pos = Vector2(p.vel.x*deltaTime, p.vel.y*deltaTime);
+        particles[i].updateAcceleration(particles);
+        particles[i].vel.x += particles[i].acc.x * deltaTime;
+        particles[i].vel.y += particles[i].acc.y * deltaTime;
+        particles[i].pos.x += particles[i].vel.x * deltaTime;
+        particles[i].pos.y += particles[i].vel.y * deltaTime;
     }
     glutPostRedisplay();
     glutTimerFunc(callbackPing,update,0);
@@ -88,8 +90,9 @@ int main(int argc, char** argv) {
     mt19937 gen(rd());
     uniform_real_distribution<float> dis(0.0f, 1.0f);
 
-    for(int i = 0; i <1; i++){
-        particles.push_back(Particle((dis(gen)-0.5f)*30,(dis(gen)-0.5f)*30,20,1));
+    for(int i = 0; i <2; i++){
+        particles.push_back(Particle((dis(gen)-0.5f)*100,(dis(gen)-0.5f)*100,5,(dis(gen)-0.5f)*10));
+        cout << particles[i].charge << endl;
     }
 
     glutInit(&argc, argv);
@@ -105,7 +108,7 @@ int main(int argc, char** argv) {
     init();
     glutDisplayFunc(display);
 
-//    glutTimerFunc(callbackPing,update,0);
+    glutTimerFunc(callbackPing,update,0);
 
     // Tell GLUT to start reading and processing events.  This function
     // never returns; the program only exits when the user closes the main
