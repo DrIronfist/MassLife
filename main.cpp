@@ -7,17 +7,17 @@
 
 #include <cmath>
 #include <iostream>
-#include "Particle.h"
 #include <vector>
 #include <random>
+#include "Particle.h"
+
 using namespace std;
 
-float windowX = 640.0f;
-float windowY = 480.0f;
-float fps = 60.0f;
-int callbackPing = int(1000.0f / fps);
-float deltaTime = float(callbackPing) / 1000.0f;
-float timeElapsed = 0;
+const float windowX = 640.0f;
+const float windowY = 480.0f;
+const float fps = 60.0f;
+const int callbackPing = static_cast<int>(1000.0f / fps);
+const float deltaTime = static_cast<float>(callbackPing) / 1000.0f;
 vector<Particle> particles;
 
 void init() {
@@ -32,31 +32,32 @@ void init() {
     glLoadIdentity();
 }
 
+void drawParticle(const Particle& p) {
+    float colorInterp = (p.charge + 10) / 20.0f; // Normalize charge to 0-1 range
+    glColor3f(1.0f - colorInterp, 0.0f, colorInterp); // Interpolate between red and blue
+
+    glBegin(GL_POLYGON);
+    float radius = p.radius;
+    int segments = static_cast<int>(radius * 2 * M_PI);
+    for (int j = 0; j < segments; j++) {
+        float theta = 2.0f * M_PI * static_cast<float>(j) / static_cast<float>(segments);
+        float x = p.pos.x + radius * cos(theta);
+        float y = p.pos.y + radius * sin(theta);
+        glVertex2f(x, y);
+    }
+    glEnd();
+}
+
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
-
-    for (Particle &p : particles) {
-        float colorInterp = (p.charge + 10) / 20.0f; // normalize charge to 0-1 range
-        glColor3f(1.0f - colorInterp, 0.0f, colorInterp); // interpolate between red and blue
-
-        glBegin(GL_POLYGON);
-        float radius = p.radius;
-        int segments = int(radius * 2 * M_PI);
-        for (int j = 0; j < segments; j++) {
-            float theta = 2.0 * M_PI * float(j) / float(segments);
-            float x = p.pos.x + radius * cos(theta);
-            float y = p.pos.y + radius * sin(theta);
-            glVertex2f(x, y);
-        }
-        glEnd();
+    for (const Particle& p : particles) {
+        drawParticle(p);
     }
-
     glutSwapBuffers();
 }
 
 void update(int value) {
-    timeElapsed += deltaTime;
-    for (Particle &p : particles) {
+    for (Particle& p : particles) {
         p.updateAcceleration(particles);
         p.vel.x += p.acc.x * deltaTime;
         p.vel.y += p.acc.y * deltaTime;
@@ -74,19 +75,28 @@ void update(int value) {
     glutTimerFunc(callbackPing, update, 0);
 }
 
-int main(int argc, char** argv) {
+void initializeParticles(int numParticles) {
     random_device rd;
     mt19937 gen(rd());
     uniform_real_distribution<float> dis(0.0f, 1.0f);
 
-    for (int i = 0; i < 100; i++) {
-        particles.push_back(Particle((dis(gen) - 0.5f) * windowX, (dis(gen) - 0.5f) * windowY, 5, (dis(gen) - 0.5f) * 20));
+    for (int i = 0; i < numParticles; ++i) {
+        particles.emplace_back(
+                (dis(gen) - 0.5f) * windowX,
+                (dis(gen) - 0.5f) * windowY,
+                5,
+                (dis(gen) - 0.5f) * 20
+        );
     }
+}
+
+int main(int argc, char** argv) {
+    initializeParticles(10);
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_MULTISAMPLE);
+    glutInitWindowSize(static_cast<int>(windowX), static_cast<int>(windowY));
     glutInitWindowPosition(80, 80);
-    glutInitWindowSize(windowX, windowY);
     glutCreateWindow("Particle Simulation");
 
     init();

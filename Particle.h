@@ -2,33 +2,11 @@
 #define PARTICLE_H
 
 #include <vector>
-#include <cmath>
 #include <algorithm>
+#include "Vector2.h"
 
-struct Vector2 {
-    float x;
-    float y;
-
-    // Constructor
-    Vector2(float d, float d0) : x(d), y(d0) {}
-};
-
-float magnitude(const Vector2& v) {
-    return std::sqrt(v.x * v.x + v.y * v.y);
-}
-
-Vector2 subtractMagnitude(const Vector2& v, float amount) {
-    float mag = magnitude(v);
-
-    // Calculate the new magnitude after subtracting the amount
-    float newMag = mag - amount;
-    if (newMag < 0) newMag = 0; // Ensure magnitude doesn't go negative
-    // Normalize the vector to get its direction and multiply by the new magnitude
-    return Vector2(v.x * (newMag / mag), v.y * (newMag / mag));
-}
-
-const float k = 30;
-const float kFriction = 0;
+const float k = 30.0f;
+const float kFriction = 0.0f;
 const float kDrag = 0.0f;
 
 class Particle {
@@ -47,14 +25,16 @@ public:
     Vector2 updateAcceleration(const std::vector<Particle>& particles) {
         float accX = 0.0f;
         float accY = 0.0f;
-        float velMag = magnitude(vel);
+        float velMag = vel.magnitude();
+
         if (velMag > 0) {
             accX -= vel.x / velMag * kFriction + vel.x * kDrag;
             accY -= vel.y / velMag * kFriction + vel.y * kDrag;
         }
+
         const float epsilon = 1e-5f; // Small value to avoid division by zero
 
-        for (const Particle& p : particles) {
+        for (const auto& p : particles) {
             if (&p == this) continue; // Avoid self-interaction
 
             float deltaX = pos.x - p.pos.x;
@@ -63,10 +43,10 @@ public:
 
             if (dist2 < epsilon) continue; // Skip if the distance is too small
 
-            float dist = sqrt(dist2);
+            float dist = std::sqrt(dist2);
             float dist3 = dist * dist2; // Equivalent to dist^3
             float force = k * charge * p.charge / dist3;
-            force = std::min(force, 10.0f); // Cap the force to avoid excessive acceleration
+            force = std::min(force, 10.0f);
 
             accX += force * deltaX;
             accY += force * deltaY;
