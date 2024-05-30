@@ -58,7 +58,7 @@ void display() {
         float radius = p.radius;
         int segments = int(radius*2*M_PI);
         for(int j = 0; j < segments; j++){
-            float theta = 2.0f * M_PI * float(j)/float(segments);
+            float theta = 2.0 * M_PI * float(j)/float(segments);
             float x = p.pos.x + radius * cos(theta);
             float y = p.pos.y + radius * sin(theta);
             glVertex2f(x,y);
@@ -102,7 +102,7 @@ int main(int argc, char** argv) {
     mt19937 gen(rd());
     uniform_real_distribution<float> dis(0.0f, 1.0f);
 
-    for(int i = 0; i <10; i++){
+    for(int i = 0; i <30; i++){
         particles.push_back(Particle((dis(gen)-0.5f)*windowX/2.0f,(dis(gen)-0.5f)*windowY/2.0f,5,(dis(gen)-0.5f)*10));
     }
 

@@ -31,8 +31,9 @@ Vector2 subtractMagnitude(const Vector2& v, float amount) {
 
 
 
-const float k = 90000.0f;
-const float kFriction = 3;
+const float k = 30;
+const float kFriction = 0;
+const float kDrag = 0.0f;
 
 class Particle {
 public:
@@ -53,8 +54,9 @@ public:
         float velMag = sqrt(vel.x*vel.x+vel.y*vel.y);
         if(velMag > 0 ){
             float theta = atan(vel.y/vel.x);
-            accX -= vel.x/velMag * kFriction;
-            accY -= vel.y/velMag* kFriction;
+            accX -= vel.x/velMag * kFriction + vel.x*kDrag;
+            accY -= vel.y/velMag* kFriction + vel.y*kDrag;
+
         }
         const float epsilon = 1e-5f; // Small value to avoid division by zero
 
