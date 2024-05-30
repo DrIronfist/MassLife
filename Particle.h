@@ -3,9 +3,7 @@
 
 #include <vector>
 #include <cmath>
-#include <iostream>
 #include <algorithm>
-using namespace std;
 
 struct Vector2 {
     float x;
@@ -24,12 +22,10 @@ Vector2 subtractMagnitude(const Vector2& v, float amount) {
 
     // Calculate the new magnitude after subtracting the amount
     float newMag = mag - amount;
+    if (newMag < 0) newMag = 0; // Ensure magnitude doesn't go negative
     // Normalize the vector to get its direction and multiply by the new magnitude
     return Vector2(v.x * (newMag / mag), v.y * (newMag / mag));
-
 }
-
-
 
 const float k = 30;
 const float kFriction = 0;
@@ -45,23 +41,20 @@ public:
 
     // Constructor
     Particle(float x, float y, float radius_val, float charge_val)
-            : pos(x, y), vel(0, 0), acc(0, 0), radius(radius_val), charge(charge_val){}
+            : pos(x, y), vel(0, 0), acc(0, 0), radius(radius_val), charge(charge_val) {}
 
     // Function to update acceleration
     Vector2 updateAcceleration(const std::vector<Particle>& particles) {
         float accX = 0.0f;
         float accY = 0.0f;
-        float velMag = sqrt(vel.x*vel.x+vel.y*vel.y);
-        if(velMag > 0 ){
-            float theta = atan(vel.y/vel.x);
-            accX -= vel.x/velMag * kFriction + vel.x*kDrag;
-            accY -= vel.y/velMag* kFriction + vel.y*kDrag;
-
+        float velMag = magnitude(vel);
+        if (velMag > 0) {
+            accX -= vel.x / velMag * kFriction + vel.x * kDrag;
+            accY -= vel.y / velMag * kFriction + vel.y * kDrag;
         }
         const float epsilon = 1e-5f; // Small value to avoid division by zero
 
-        for (int i = 0; i < particles.size(); i++) {
-            const Particle& p = particles[i];
+        for (const Particle& p : particles) {
             if (&p == this) continue; // Avoid self-interaction
 
             float deltaX = pos.x - p.pos.x;
@@ -73,18 +66,15 @@ public:
             float dist = sqrt(dist2);
             float dist3 = dist * dist2; // Equivalent to dist^3
             float force = k * charge * p.charge / dist3;
-            force = min(force, 10.0f);
+            force = std::min(force, 10.0f); // Cap the force to avoid excessive acceleration
 
             accX += force * deltaX;
             accY += force * deltaY;
         }
 
-
-        Vector2 acceleration(accX, accY);
-        acc = acceleration;
-        return acceleration;
+        acc = Vector2(accX, accY);
+        return acc;
     }
-
 };
 
 #endif // PARTICLE_H
