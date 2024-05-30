@@ -7,7 +7,6 @@
 
 #include <cmath>
 #include <iostream>
-#include <chrono>
 #include "Particle.h"
 #include <vector>
 #include <random>
