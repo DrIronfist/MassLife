@@ -4,6 +4,7 @@
 #include <vector>
 #include <cmath>
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
 struct Vector2 {
@@ -43,14 +44,13 @@ public:
 
     // Constructor
     Particle(float x, float y, float radius_val, float charge_val)
-            : pos(x, y), vel(20, 0), acc(0, 0), radius(radius_val), charge(charge_val){}
+            : pos(x, y), vel(0, 0), acc(0, 0), radius(radius_val), charge(charge_val){}
 
     // Function to update acceleration
     Vector2 updateAcceleration(const std::vector<Particle>& particles) {
         float accX = 0.0f;
         float accY = 0.0f;
         float velMag = sqrt(vel.x*vel.x+vel.y*vel.y);
-        cout << velMag << endl;
         if(velMag > 0 ){
             float theta = atan(vel.y/vel.x);
             accX -= vel.x/velMag * kFriction;
@@ -71,6 +71,8 @@ public:
             float dist = sqrt(dist2);
             float dist3 = dist * dist2; // Equivalent to dist^3
             float force = k * charge * p.charge / dist3;
+            force = min(force, 10.0f);
+
             accX += force * deltaX;
             accY += force * deltaY;
         }

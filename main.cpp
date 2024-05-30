@@ -99,7 +99,7 @@ int main(int argc, char** argv) {
     mt19937 gen(rd());
     uniform_real_distribution<float> dis(0.0f, 1.0f);
 
-    for(int i = 0; i <1; i++){
+    for(int i = 0; i <3; i++){
         particles.push_back(Particle((dis(gen)-0.5f)*windowX/2.0f,(dis(gen)-0.5f)*windowY/2.0f,5,(dis(gen)-0.5f)*10));
     }
 
