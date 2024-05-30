@@ -44,11 +44,17 @@ void display() {
     // Set every pixel in the frame buffer to the current clear color.
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glColor3f(1.0, 1.0, 1.0);
+
 
     for(int i = 0; i < particles.size(); i++){
+        Particle &p = particles.at(i);
+        if(p.charge > 0){
+            glColor3f(1.0f,0.0f,0.0f);
+        } else{
+            glColor3f(0.0f,0.0f,1.0f);
+        }
         glBegin(GL_POLYGON);
-        Particle p = particles.at(i);
+
         float radius = p.radius;
         int segments = int(radius*2*M_PI);
         for(int j = 0; j < segments; j++){
@@ -74,14 +80,11 @@ void update(int value){
         particles[i].vel.y += particles[i].acc.y * deltaTime;
         particles[i].pos.x += particles[i].vel.x * deltaTime;
         particles[i].pos.y += particles[i].vel.y * deltaTime;
-        if (p.pos.x + p.radius > windowX / 2.0f || p.pos.x - p.radius < -windowX / 2.0f){
-            // Check for collision with window borders and reverse velocity if necessary
-            if (p.pos.x + p.radius > windowX / 2.0f || p.pos.x - p.radius < -windowX / 2.0f) {
-                p.vel.x *= -1;
-            }
-            if (p.pos.y + p.radius > windowY / 2.0f || p.pos.y - p.radius < -windowY / 2.0f) {
-                p.vel.y *= -1;
-            }
+        if (p.pos.x - p.radius <= -windowX / 2.0f || p.pos.x + p.radius >= windowX / 2.0f) {
+            p.vel.x *= -1;
+        }
+        if (p.pos.y - p.radius <= -windowY / 2.0f || p.pos.y + p.radius >= windowY / 2.0f) {
+            p.vel.y *= -1;
         }
 
     }
@@ -99,7 +102,7 @@ int main(int argc, char** argv) {
     mt19937 gen(rd());
     uniform_real_distribution<float> dis(0.0f, 1.0f);
 
-    for(int i = 0; i <3; i++){
+    for(int i = 0; i <10; i++){
         particles.push_back(Particle((dis(gen)-0.5f)*windowX/2.0f,(dis(gen)-0.5f)*windowY/2.0f,5,(dis(gen)-0.5f)*10));
     }
 
