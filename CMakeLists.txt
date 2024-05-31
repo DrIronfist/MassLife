@@ -18,7 +18,11 @@ add_executable(ParticleProject
         Particle.cpp
         Particle.h
         SlopeFieldRunner.cpp
-        Vector2.h)
+        Vector2.h
+        SlopeFieldRunner.h
+        CoulombSimulation.cpp
+        CoulombSimulation.h
+        main.cpp)
 
 find_package(glm CONFIG REQUIRED)
 target_link_libraries(ParticleProject PRIVATE ${OPENGL_LIBRARIES} glfw ${GLUT_LIBRARIES} glm::glm)
