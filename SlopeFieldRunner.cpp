@@ -77,7 +77,9 @@ void SlopeFieldRunner::drawArrow(const Vector2& pos, const Vector2& normalized, 
 }
 
 Vector2 SlopeFieldRunner::slopeAtDifferentialPoint(Vector2 pos) {
-    float slope = pos.y - 2.0f * pos.x;
+    float slope = 1.0f/pos.x;
+
+
     return Vector2(1.0f, slope).normalize();
 }
 
@@ -108,7 +110,6 @@ void SlopeFieldRunner::display() {
 void SlopeFieldRunner::update(int value) {
     Vector2 vel = slopeAtDifferentialPoint(Vector2(x, y));
 
-    std::cout << vel.x << std::endl;
 
     x += vel.x * deltaTime;
     y += vel.y * deltaTime;
