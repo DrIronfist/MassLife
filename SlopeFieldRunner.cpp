@@ -8,14 +8,19 @@
 #include <cmath>
 #include <vector>
 #include <random>
+#include <iostream>
 #include "Particle.h"
 
-const float windowX = 1500.0f;
+using namespace std;
+
+const float windowX = 1000.0f;
 const float windowY = 1000.0f;
 const float fps = 60.0f;
 const int callbackPing = static_cast<int>(1000.0f / fps);
+const float deltaTime = static_cast<float>(callbackPing) / 1000.0f;
 const float cos30 = std::sqrt(3) / 2.0f;
-std::vector<Particle> particles;
+float x = 0.0f;
+float y = 0.0f;
 
 void init() {
     glClearColor(32.0f / 255.0f, 36.0f / 255.0f, 47.0f / 255.0f, 1.0);
@@ -31,9 +36,10 @@ void init() {
 
 void drawArrow(const Vector2& pos, const Vector2& normalized, float length) {
     const float arrowHeadSize = length * 0.5f;
+    const Vector2 scaledUp = Vector2(pos.x*100.0f,pos.y*100.0f);
 
-    const float endX = pos.x + length * normalized.x;
-    const float endY = pos.y + length * normalized.y;
+    const float endX = scaledUp.x + length * normalized.x;
+    const float endY = scaledUp.y + length * normalized.y;
 
     const Vector2 leftIBasis(-cos30, 0.5f);
     const Vector2 leftJBasis(-0.5f, -cos30);
@@ -53,7 +59,7 @@ void drawArrow(const Vector2& pos, const Vector2& normalized, float length) {
     glColor3f(1.0f, 1.0f, 1.0f);
 
     glBegin(GL_LINES);
-    glVertex2f(pos.x, pos.y);
+    glVertex2f(scaledUp.x, scaledUp.y);
     glVertex2f(endX, endY);
     glEnd();
 
@@ -74,12 +80,33 @@ void display() {
 
     for(int i = int(-windowX/2.0f); i < int(windowX/2.0f); i+=20){
         for(int j = int(-windowY/2.0f); j < int(windowY/2.0f); j+=20){
-            Vector2 posVector = Vector2(float(i),float(j));
-            drawArrow(posVector,slopeAtDifferentialPoint(posVector),10);
+            Vector2 posVector = Vector2(float(i/100.0f),float(j/100.0f));
+            drawArrow(posVector,slopeAtDifferentialPoint(posVector),7);
         }
     }
+    glBegin(GL_POLYGON);
+    float radius = 10.0f;
+    int segments = int(2.0f*radius*M_PI);
+    for(int i = 0; i < segments; i++){
+        glVertex2f(
+                x*100.0f+radius*cos(2*M_PI*float(i)/float(segments)),
+                y*100.0f+radius*sin(2*M_PI*float(i)/float(segments))
+                );
+    }
+    glEnd();
 
     glutSwapBuffers();
+}
+
+void update(int value) {
+    Vector2 vel = slopeAtDifferentialPoint(Vector2(x,y));
+
+    cout << vel.x << endl;
+
+    x += vel.x * deltaTime;
+    y += vel.y * deltaTime;
+    glutPostRedisplay();
+    glutTimerFunc(callbackPing, update, 0);
 }
 
 
@@ -100,6 +127,7 @@ int main(int argc, char** argv) {
 
     init();
     glutDisplayFunc(display);
+    glutTimerFunc(callbackPing, update, 0);
     glutMainLoop();
     return 0;
 }
