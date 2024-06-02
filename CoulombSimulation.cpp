@@ -41,9 +41,9 @@ void CoulombSimulation::drawParticle(const Particle& p) {
 
     glBegin(GL_POLYGON);
     float radius = p.radius;
-    int segments = static_cast<int>(radius * 2 * M_PI);
+    int segments = int(radius * 2 * M_PI);
     for (int j = 0; j < segments; j++) {
-        float theta = 2.0f * M_PI * static_cast<float>(j) / static_cast<float>(segments);
+        float theta = 2.0f * M_PI * float(j) / float(segments);
         float x = p.pos.x + radius * cos(theta);
         float y = p.pos.y + radius * sin(theta);
         glVertex2f(x, y);

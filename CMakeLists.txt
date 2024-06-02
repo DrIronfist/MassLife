@@ -22,7 +22,9 @@ add_executable(ParticleProject
         SlopeFieldRunner.h
         CoulombSimulation.cpp
         CoulombSimulation.h
-        main.cpp)
+        main.cpp
+        PhasePlot.cpp
+        PhasePlot.h)
 
 find_package(glm CONFIG REQUIRED)
 target_link_libraries(ParticleProject PRIVATE ${OPENGL_LIBRARIES} glfw ${GLUT_LIBRARIES} glm::glm)
